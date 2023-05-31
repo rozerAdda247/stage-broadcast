@@ -1,24 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import Header from "./components/Header.js";
+import LocalMedia from "./components/LocalMedia.js";
+import LocalMediaProvider from "./contexts/LocalMediaContext.js";
+import BroadcastProvider from "./contexts/BroadcastContext.js";
+import StageProvider from "./contexts/StageContext.js";
+import StageParticipants from "./components/StageParticipants.js";
+import MediaControls from "./components/MediaControls.js";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <LocalMediaProvider>
+      <BroadcastProvider>
+        <StageProvider>
+          <Header />
+          <div className="content container">
+            <LocalMedia />
+            <hr />
+            <StageParticipants />
+          </div>
+          <hr />
+          <MediaControls />
+        </StageProvider>
+      </BroadcastProvider>
+    </LocalMediaProvider>
   );
 }
 
