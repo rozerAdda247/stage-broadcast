@@ -4,6 +4,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Available Scripts
 
+Install all dependenices
+
+### `npm install || npm install --legacy-peer-deps`
+
 In the project directory, you can run:
 
 ### `npm start`
@@ -68,3 +72,62 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+
+The Required APIs Call:-
+
+curl --location 'https://newadminui-k8s.adda247.com/api/v1/app/ivs/stages/createParticipantToken' \
+--header 'authority: newadminui-k8s.adda247.com' \
+--header 'accept: application/json, text/plain, */*' \
+--header 'accept-language: en-GB,en-US;q=0.9,en;q=0.8' \
+--header 'and_app_version: 375' \
+--header 'content-type: application/json' \
+--header 'origin: http://localhost:2048' \
+--header 'referer: http://localhost:2048/' \
+--header 'sec-ch-ua: "Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"' \
+--header 'sec-ch-ua-mobile: ?0' \
+--header 'sec-ch-ua-platform: "macOS"' \
+--header 'sec-fetch-dest: empty' \
+--header 'sec-fetch-mode: cors' \
+--header 'sec-fetch-site: cross-site' \
+--header 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36' \
+--header 'x-liveclass-authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZXIiOiJBZGRhMjQ3IiwidXNlcm5hbWUiOiJhZGRhMjQ3YWRtaW4iLCJyb2xlIjoidXNlciIsInVuaXF1ZWtleSI6ImFkZGEyNDctaXZzLWF1dGgta2V5IiwiaWF0IjoxNjY4MTU0NzU0fQ.0px0EEmDAsL16pToQ6chuQ8v3HXuy30ogLOcTQozvL4' \
+--data '{
+    "stageArn": "arn:aws:ivs:us-east-1:748804974185:stage/w1OlGzTgX19m",
+    "attributes": {
+        "username": "Rozer Student-2",
+        "userId": "4721",
+        "role": "STUDENT",
+        "sheduledid": "348369",
+        "topicName": "",
+        "isScreenshare": "false",
+        "avatar": "",
+        "liveLatency": "",
+        "timestamp": 1713429069,
+        "teacher_screenshare": "false",
+        "teacher_video": "false"
+    },
+    "capabilities": [
+        "PUBLISH",
+        "SUBSCRIBE"
+    ],
+    "duration": 2400,
+    "userId": "4721",
+    "role": "STUDENT",
+    "userInfo": {
+        "username": "Rozer Student-2",
+        "userId": "4721",
+        "role": "STUDENT",
+        "sheduledid": "348369",
+        "topicName": "English"
+    }
+}
+
+
+
+curl --location 'https://stagingapi.adda247.com/lc-common-ws/api/v1/app/ivs/stage/participant/listing?stageArn=arn%3Aaws%3Aivs%3Aus-east-1%3A748804974185%3Astage%2FXykdEM4lU17m' \
+--header 'Content-Type: application/json' \
+--data '{
+    "stageArn":"arn:aws:ivs:us-east-1:748804974185:stage/XykdEM4lU17m"
+}'
