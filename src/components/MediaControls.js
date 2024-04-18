@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import IVSBroadcastClient from "amazon-ivs-web-broadcast";
 import Button from "./Button.js";
 import { LocalMediaContext } from "../contexts/LocalMediaContext.js";
 const { StreamType } = window.IVSBroadcastClient;

@@ -1,22 +1,16 @@
-import React, { useState, useRef, useContext, useEffect } from "react";
+import { useState, useRef, useContext, useEffect } from "react";
+import IVSBroadcastClient from "amazon-ivs-web-broadcast";
 import { getScreenshare } from "../util/mediaDevices.js";
 import { LocalMediaContext } from "../contexts/LocalMediaContext.js";
 import Strategy from "../util/strategy.js";
-const {
-  Stage,
-  StageConnectionState,
-  StageEvents,
-  SubscribeType,
-  LocalStageStream,
-} = window.IVSBroadcastClient;
-
+const { Stage, StageConnectionState, StageEvents, SubscribeType } = window.IVSBroadcastClient;
 export default function useScreenshareStage() {
   const [screenshareStageJoined, setScreenshareStageJoined] = useState(false);
   const { screenshare, updateScreenshare } = useContext(LocalMediaContext);
 
   const stageRef = useRef(undefined);
   const strategyRef = useRef(
-    new Strategy(undefined, undefined, SubscribeType.NONE)
+    new Strategy(undefined, undefined, SubscribeType?.NONE)
   );
 
   useEffect(() => {
@@ -24,7 +18,7 @@ export default function useScreenshareStage() {
     if (stageRef.current && screenshareStageJoined) {
       stageRef.current.refreshStrategy();
     }
-  }, [screenshare]);
+  }, [screenshare, screenshareStageJoined]);
 
   const handleConnectionStateChange = (state) => {
     if (state === StageConnectionState.CONNECTED) {

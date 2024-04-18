@@ -1,14 +1,15 @@
+import IVSBroadcastClient from "amazon-ivs-web-broadcast";
 const { SubscribeType } = window.IVSBroadcastClient;
 
 export default class Strategy {
   _videoStream = undefined;
   _audioStream = undefined;
-  _subscribeType = SubscribeType.NONE;
+  _subscribeType = SubscribeType?.NONE;
 
   constructor(
     audioStream,
     videoStream,
-    subscribeType = SubscribeType.AUDIO_VIDEO
+    subscribeType = SubscribeType?.AUDIO_VIDEO
   ) {
     this._videoStream = videoStream;
     this._audioStream = audioStream;
@@ -21,7 +22,16 @@ export default class Strategy {
   }
 
   stageStreamsToPublish() {
-    return [this._videoStream, this._audioStream];
+    const streams = [];
+    if (this._videoStream) {
+      streams.push(this._videoStream);
+    }
+
+    if (this._audioStream) {
+      streams.push(this._audioStream);
+    }
+
+    return streams;
   }
 
   shouldPublishParticipant(participantInfo) {
@@ -29,6 +39,6 @@ export default class Strategy {
   }
 
   shouldSubscribeToParticipant(participantInfo) {
-    return this._subscribeType;
+    return SubscribeType?.AUDIO_ONLY;
   }
 }

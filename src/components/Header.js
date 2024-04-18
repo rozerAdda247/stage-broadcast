@@ -1,11 +1,11 @@
 import React from "react";
-const { __version } = window.IVSBroadcastClient;
-
+import IVSBroadcastClient from "amazon-ivs-web-broadcast";
 export default function Header() {
+  const { __version } = window.IVSBroadcastClient;
   return (
     <header className="container">
       <h1>IVS Web Broadcast Stages Example</h1>
-      {__version && __version.includes("rc") ? (
+      {__version && __version?.includes("rc") ? (
         <p>
           <b>WARNING:</b> This example is using a release candidate (version:{" "}
           {__version}). Please make note of the imported script tag

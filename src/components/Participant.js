@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from "react";
+import IVSBroadcastClient from "amazon-ivs-web-broadcast";
 import Video from "./Video.js";
 import Placeholder from "./Placeholder.js";
 const { StreamType } = window.IVSBroadcastClient;

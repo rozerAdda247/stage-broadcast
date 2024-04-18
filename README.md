@@ -77,7 +77,7 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 
 The Required APIs Call:-
 
-curl --location 'https://newadminui-k8s.adda247.com/api/v1/app/ivs/stages/createParticipantToken' \
+### `curl --location 'https://newadminui-k8s.adda247.com/api/v1/app/ivs/stages/createParticipantToken' \
 --header 'authority: newadminui-k8s.adda247.com' \
 --header 'accept: application/json, text/plain, */*' \
 --header 'accept-language: en-GB,en-US;q=0.9,en;q=0.8' \
@@ -122,12 +122,12 @@ curl --location 'https://newadminui-k8s.adda247.com/api/v1/app/ivs/stages/create
         "sheduledid": "348369",
         "topicName": "English"
     }
-}
+}`
 
 
 
-curl --location 'https://stagingapi.adda247.com/lc-common-ws/api/v1/app/ivs/stage/participant/listing?stageArn=arn%3Aaws%3Aivs%3Aus-east-1%3A748804974185%3Astage%2FXykdEM4lU17m' \
+### `curl --location 'https://stagingapi.adda247.com/lc-common-ws/api/v1/app/ivs/stage/participant/listing?stageArn=arn%3Aaws%3Aivs%3Aus-east-1%3A748804974185%3Astage%2FXykdEM4lU17m' \
 --header 'Content-Type: application/json' \
 --data '{
     "stageArn":"arn:aws:ivs:us-east-1:748804974185:stage/XykdEM4lU17m"
-}'
+}'`

@@ -1,8 +1,9 @@
 import { useState } from "react";
+import IVSBroadcastClient from "amazon-ivs-web-broadcast";
 import { getCamera, getMic } from "../util/mediaDevices.js";
-const { LocalStageStream, StreamType } = window.IVSBroadcastClient;
 
 export function useLocalMedia() {
+  const { LocalStageStream, StreamType } = window.IVSBroadcastClient;
   const [localVideo, setLocalVideo] = useState(undefined);
   const [localAudio, setLocalAudio] = useState(undefined);
   const [screenshare, setScreenshare] = useState(undefined);
@@ -13,6 +14,7 @@ export function useLocalMedia() {
       return;
     }
     setScreenshare(new LocalStageStream(track));
+    console.log(new LocalStageStream(track), ":::: createScreenshare ::::");
   }
 
   async function setLocalVideoFromId(id) {

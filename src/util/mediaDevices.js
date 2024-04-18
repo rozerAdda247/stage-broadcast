@@ -11,7 +11,6 @@ export async function getDevices() {
   if (!audioDevices.length) {
     console.warn("No audio devices found.");
   }
-
   return { videoDevices, audioDevices };
 }
 
