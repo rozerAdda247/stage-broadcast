@@ -480,7 +480,7 @@ export default function useBroadcast() {
     const vc = urlParams.get("vc");
 
     // Do something with the parameters
-    requestToken(name, vc, sid, arn);
+    requestToken(name, sid, vc, arn);
   }, []);
 
   // Function to flatten an object
