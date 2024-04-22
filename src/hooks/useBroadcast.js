@@ -471,12 +471,16 @@ export default function useBroadcast() {
   };
 
   useEffect(() => {
-    requestToken(
-      "Rozer Studen-2",
-      "4721",
-      "33800",
-      "arn:aws:ivschat:us-east-1:748804974185:room/fbhT8U6RbbLW"
-    );
+    const arn = `arn:aws:ivschat:us-east-1:748804974185:room${window.location.pathname}`;
+    // Get the current URL
+    const urlParams = new URLSearchParams(window.location.search);
+    // Get specific parameter values
+    const name = urlParams.get("name");
+    const sid = urlParams.get("id");
+    const vc = urlParams.get("vc");
+
+    // Do something with the parameters
+    requestToken(name, vc, sid, arn);
   }, []);
 
   // Function to flatten an object
