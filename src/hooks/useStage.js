@@ -1,4 +1,5 @@
 import { useState, useRef, useContext, useEffect } from "react";
+import axios from "axios";
 import IVSBroadcastClient from "amazon-ivs-web-broadcast";
 import { LocalMediaContext } from "../contexts/LocalMediaContext.js";
 import { BroadcastContext } from "../contexts/BroadcastContext.js";
@@ -156,6 +157,8 @@ function isLocalParticipant(info) {
 }
 
 export default function useStage() {
+  const cachedStageToken = sessionStorage.getItem("stage-token");
+  const [stageToken, setStageToken] = useState(cachedStageToken || "");
   const [stageJoined, setStageJoined] = useState(false);
   const [participants, setParticipants] = useState(new Map());
   const [localParticipant, setLocalParticipant] = useState({});
@@ -203,8 +206,8 @@ export default function useStage() {
           "ss_videoStopped": "${participantInfo.videoStopped}"
         }
       }`;
-      console.log(data)
-      messageConnection.current.send(data);
+      console.log(data);
+      messageConnection?.send(data);
       if (isLocalParticipant(participantInfo)) {
         setLocalParticipant(participantInfo);
       } else {
@@ -305,6 +308,50 @@ export default function useStage() {
     }
   }
 
+  async function createParticipantToken(capabilities) {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      // Get specific parameter values
+      const name = urlParams.get("name");
+      const sid = urlParams.get("id");
+      const vc = urlParams.get("vc");
+      const stage_id = urlParams.get("stage_id")
+      const url =
+        "https://newadminui-k8s.adda247.com/api/v1/app/ivs/stages/createParticipantToken";
+      const body = {
+        stageArn: `arn:aws:ivs:us-east-1:748804974185:stage/${stage_id}`,
+        attributes: {
+          username: name,
+          userId: sid,
+          role: "STUDENT",
+          sheduledid: vc,
+          topicName: "",
+          isScreenshare: "false",
+          avatar: "",
+          liveLatency: "",
+          timestamp: "",
+          teacher_screenshare: "false",
+          teacher_video: "false",
+        },
+        capabilities: capabilities,
+        duration: 2400,
+        userId: sid,
+        role: "STUDENT",
+        userInfo: {
+          username: name,
+          userId: sid,
+          role: "STUDENT",
+          sheduledid: vc,
+          topicName: "",
+        },
+      };
+      const { data } = await axios.post(url, { ...body });
+      return data.data.participantToken.token;
+    } catch (error) {
+      alert("Unable to create token")
+    }
+  }
+
   async function joinStage(token) {
     if (!token) {
       alert("Please enter a token to join a stage");
@@ -349,11 +396,36 @@ export default function useStage() {
       alert(`Error joining stage: ${err.message}`);
     }
   }
+  const handleSubcriberToPublisher = async (data) => {
+    console.log(data);
+    if (participants.get(data["Attributes"]["userId"])) {
+      leaveStage();
+      const tkn = await createParticipant(["SUBSCRIBE"]);
+      setStageToken(tkn);
+      joinStage(tkn);
+    }
+    if (parseInt(window.sid) === parseInt(data["Attributes"]["userId"])) {
+      const tkn = await createParticipantToken(["PUBLISH", "SUBSCRIBE"]);
+      setStageToken(tkn);
+      joinStage(tkn);
+    }
+  };
+  const handlePublisherToSubcriber = async (data) => {
+    leaveStage();
+    const tkn = await createParticipantToken(["SUBSCRIBE"]);
+    setStageToken(tkn);
+    joinStage(tkn);
+  };
 
   return {
     joinStage,
     stageJoined,
     leaveStage,
     participants,
+    createParticipantToken,
+    handleSubcriberToPublisher,
+    handlePublisherToSubcriber,
+    stageToken,
+    setStageToken,
   };
 }

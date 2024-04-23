@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useCallback } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import LocalVideo from "./LocalVideo.js";
 import Button from "./Button.js";
 import Select from "./Select.js";
@@ -15,22 +15,8 @@ export default function LocalMedia() {
     stopBroadcast,
     broadcastStarted,
     updateStreamKey,
+    messageConnection,
   } = useContext(BroadcastContext);
-  // This is for development purposes. It checks to see if we have a valid token saved in the session storage
-  const cachedStageToken = sessionStorage.getItem("stage-token");
-  const cachedScreenshareStageToken = sessionStorage.getItem(
-    "stage-screenshare-token"
-  );
-  const cachedIngestEndpoint = sessionStorage.getItem("ingest-endpoint");
-  const cachedStreamKey = sessionStorage.getItem("stream-key");
-  const [ingestEndpoint, setIngestEndpoint] = useState(
-    cachedIngestEndpoint || ""
-  );
-  const [streamKey, setStreamKey] = useState(cachedStreamKey || "");
-  const [stageToken, setStageToken] = useState(cachedStageToken || "");
-  const [screenshareToken, setScreenshareToken] = useState(
-    cachedScreenshareStageToken || ""
-  );
   const { audioDevices, videoDevices, updateLocalAudio, updateLocalVideo } =
     useContext(LocalMediaContext);
   const {
@@ -40,7 +26,25 @@ export default function LocalMedia() {
     screenshareStageJoined,
     publishScreenshare,
     unpublishScreenshare,
+    stageToken,
+    setStageToken,
+    handleSubcriberToPublisher,
+    handlePublisherToSubcriber,
   } = useContext(StageContext);
+  // This is for development purposes. It checks to see if we have a valid token saved in the session storage
+  const cachedScreenshareStageToken = sessionStorage.getItem(
+    "stage-screenshare-token"
+  );
+  const cachedIngestEndpoint = sessionStorage.getItem("ingest-endpoint");
+  const cachedStreamKey = sessionStorage.getItem("stream-key");
+  const [ingestEndpoint, setIngestEndpoint] = useState(
+    cachedIngestEndpoint || ""
+  );
+  const [streamKey, setStreamKey] = useState(cachedStreamKey || "");
+  const [screenshareToken, setScreenshareToken] = useState(
+    cachedScreenshareStageToken || ""
+  );
+  
 
   function handleIngestChange(endpoint) {
     init(endpoint);
@@ -76,8 +80,52 @@ export default function LocalMedia() {
     }
   }
 
+  useEffect(()=>{
+    if(messageConnection){
+
+      messageConnection.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        const eventType = data["Type"];
+        console.log("socket_message", eventType, data);
+        // const _d = {
+        //   Type: "EVENT",
+        //   Id: "buC7u6mYvKhq",
+        //   RequestId: "1266d09b-20b9-4f22-aa74-9abded01dfff",
+        //   EventName: "DOUBT_ROOM_UNMUTE_PARTICIPANT",
+        //   Attributes: {
+        //     avatar: "",
+        //     isScreenshare: "false",
+        //     liveLatency: "",
+        //     role: "STUDENT",
+        //     sheduledid: "348369",
+        //     teacher_screenshare: "false",
+        //     teacher_video: "false",
+        //     timestamp: "1713849879",
+        //     topicName: "",
+        //     userId: "4721",
+        //     username: "Rozer Student-2",
+        //   },
+        //   SendTime: "2024-04-23T08:16:12.929110536Z",
+        // };
+        switch (eventType) {
+          case "EVENT":
+            if (data["EventName"] === "DOUBT_ROOM_UNMUTE_PARTICIPANT") {
+              console.log("DOUBT_ROOM_UNMUTE_PARTICIPANT", data);
+              handleSubcriberToPublisher(data)
+            } else if (data["EventName"] === "DOUBT_ROOM_MUTE_PARTICIPANT") {
+              handlePublisherToSubcriber(data);
+            }
+            break;
+          default:
+            break;
+        }
+      };
+    }
+  },[messageConnection])
+
   return (
     <div className="row">
+      
       <LocalVideo />
       <div className="column">
         <div className="row" style={{ marginTop: "2rem" }}>

@@ -6,6 +6,11 @@ const defaultStageContext = {
   joinStage: undefined,
   participants: [],
   stageConnected: false,
+  createParticipantToken: undefined,
+  stageToken: undefined,
+  setStageToken: undefined,
+  handleSubcriberToPublisher: undefined,
+  handlePublisherToSubcriber: undefined,
 };
 
 const defaultScreenshareStageContext = {
@@ -20,7 +25,17 @@ export const StageContext = createContext({
 });
 
 export default function StageProvider({ children }) {
-  const { joinStage, stageJoined, leaveStage, participants } = useStage();
+  const {
+    joinStage,
+    stageJoined,
+    leaveStage,
+    participants,
+    createParticipantToken,
+    stageToken,
+    setStageToken,
+    handleSubcriberToPublisher,
+    handlePublisherToSubcriber,
+  } = useStage();
   const { publishScreenshare, unpublishScreenshare, screenshareStageJoined } =
     useScreenshareStage();
 
@@ -32,6 +47,11 @@ export default function StageProvider({ children }) {
     screenshareStageJoined,
     publishScreenshare,
     unpublishScreenshare,
+    createParticipantToken,
+    stageToken,
+    setStageToken,
+    handleSubcriberToPublisher,
+    handlePublisherToSubcriber,
   };
 
   return (
