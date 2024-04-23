@@ -397,16 +397,11 @@ export default function useStage() {
     }
   }
   const handleSubcriberToPublisher = async (data) => {
-    console.log(data);
-    if (participants.get(data["Attributes"]["userId"])) {
-      leaveStage();
-      const tkn = await createParticipant(["SUBSCRIBE"]);
-      setStageToken(tkn);
-      joinStage(tkn);
-    }
     if (parseInt(window.sid) === parseInt(data["Attributes"]["userId"])) {
+      leaveStage();
       const tkn = await createParticipantToken(["PUBLISH", "SUBSCRIBE"]);
       setStageToken(tkn);
+      debugger
       joinStage(tkn);
     }
   };
