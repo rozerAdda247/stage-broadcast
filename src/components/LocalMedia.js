@@ -30,6 +30,7 @@ export default function LocalMedia() {
     setStageToken,
     handleSubcriberToPublisher,
     handlePublisherToSubcriber,
+    createParticipantToken
   } = useContext(StageContext);
   // This is for development purposes. It checks to see if we have a valid token saved in the session storage
   const cachedScreenshareStageToken = sessionStorage.getItem(
@@ -82,31 +83,10 @@ export default function LocalMedia() {
 
   useEffect(()=>{
     if(messageConnection){
-
       messageConnection.onmessage = (event) => {
         const data = JSON.parse(event.data);
         const eventType = data["Type"];
         console.log("socket_message", eventType, data);
-        // const _d = {
-        //   Type: "EVENT",
-        //   Id: "buC7u6mYvKhq",
-        //   RequestId: "1266d09b-20b9-4f22-aa74-9abded01dfff",
-        //   EventName: "DOUBT_ROOM_UNMUTE_PARTICIPANT",
-        //   Attributes: {
-        //     avatar: "",
-        //     isScreenshare: "false",
-        //     liveLatency: "",
-        //     role: "STUDENT",
-        //     sheduledid: "348369",
-        //     teacher_screenshare: "false",
-        //     teacher_video: "false",
-        //     timestamp: "1713849879",
-        //     topicName: "",
-        //     userId: "4721",
-        //     username: "Rozer Student-2",
-        //   },
-        //   SendTime: "2024-04-23T08:16:12.929110536Z",
-        // };
         switch (eventType) {
           case "EVENT":
             if (data["EventName"] === "DOUBT_ROOM_UNMUTE_PARTICIPANT") {
@@ -121,7 +101,19 @@ export default function LocalMedia() {
         }
       };
     }
-  },[messageConnection])
+  },[messageConnection]);
+
+  useEffect(()=>{
+    createParticipantToken(["SUBSCRIBE"]).then(res=>{
+      console.log(res)
+      setStageToken(res)
+      setTimeout(()=>{
+        joinStage(res);
+      }, 2000)
+    }).catch(err=>{
+
+    });
+  },[])
 
   return (
     <div className="row">

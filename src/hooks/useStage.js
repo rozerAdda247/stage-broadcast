@@ -180,8 +180,11 @@ export default function useStage() {
   }, [currentAudioDevice, currentVideoDevice, stageJoined]);
 
   const handleParticipantJoin = (participantInfo) => {
+    console.log(participantInfo)
     try {
-      const data = `{
+      if (isLocalParticipant(participantInfo)) {
+        setLocalParticipant(participantInfo);
+        const data = `{
         "action": "SEND_MESSAGE",
         "content":"SUBSCRIBER_DETAILS",
         "attributes": {
@@ -206,10 +209,7 @@ export default function useStage() {
           "ss_videoStopped": "${participantInfo.videoStopped}"
         }
       }`;
-      console.log(data);
-      messageConnection?.send(data);
-      if (isLocalParticipant(participantInfo)) {
-        setLocalParticipant(participantInfo);
+        window.messageConnection?.send(data);
       } else {
         const participant = createParticipant(participantInfo); // NOTE: we must make a new map so react picks up the state change
         setParticipants(new Map(participants.set(participant.id, participant)));
@@ -308,7 +308,7 @@ export default function useStage() {
     }
   }
 
-  async function createParticipantToken(capabilities) {
+  async function createParticipantToken(capabilities, isSetToken = false) {
     try {
       const urlParams = new URLSearchParams(window.location.search);
       // Get specific parameter values
@@ -346,6 +346,9 @@ export default function useStage() {
         },
       };
       const { data } = await axios.post(url, { ...body });
+      if(isSetToken === true){
+        setStageToken(data.data.participantToken.token);
+      };
       return data.data.participantToken.token;
     } catch (error) {
       alert("Unable to create token")

@@ -39,6 +39,6 @@ export default class Strategy {
   }
 
   shouldSubscribeToParticipant(participantInfo) {
-    return SubscribeType?.AUDIO_ONLY;
+    return SubscribeType?.AUDIO_VIDEO;
   }
 }
