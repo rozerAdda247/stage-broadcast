@@ -113,7 +113,7 @@
       <div id="remote-media"></div>
     </div>
 
-    <canvas width="100" height="100" id="canvas"></canvas>
+    <!-- <canvas width="100" height="100" id="canvas"></canvas> -->
 
     <script>
       window.onload = () => {
@@ -129,12 +129,11 @@
         openMulti();
       });
       function openMulti() {
+        const chat_d = "x9YC1aBjURil";
+        const stage_id = "ToRyjc5VlpV9";
         const sid = parseInt(Math.random() * 10000);
-        console.log(
-          `http://localhost:3033/zrx7w7nYG3Kp?name=user${sid}&id=${sid}&vc=470266&stage_id=SabEdo4Bv1h8`
-        );
         window.open(
-          `http://localhost:3033/zrx7w7nYG3Kp?name=user${sid}&id=${sid}&vc=470266&stage_id=SabEdo4Bv1h8`
+          `http://localhost:3033/${chat_d}?name=user${sid}&id=${sid}&vc=470266&stage_id=${stage_id}`
         );
       }
     </script>
