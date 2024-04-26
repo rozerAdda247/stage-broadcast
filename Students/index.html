@@ -53,6 +53,7 @@
           ></b
         >
       </p>
+      <button class="button" id="mutlsites">Multiple Sites</button>
     </header>
     <hr />
 
@@ -112,6 +113,31 @@
       <div id="remote-media"></div>
     </div>
 
+    <canvas width="100" height="100" id="canvas"></canvas>
+
+    <script>
+      window.onload = () => {
+        // Get the canvas element
+        var canvas = document.getElementById("canvas");
+
+        // Get the stream
+        var canvasStream = canvas.captureStream();
+        // Convert canvas to Blob
+        console.log(canvasStream);
+      };
+      document.getElementById("mutlsites").addEventListener("click", (e) => {
+        openMulti();
+      });
+      function openMulti() {
+        const sid = parseInt(Math.random() * 10000);
+        console.log(
+          `http://localhost:3033/zrx7w7nYG3Kp?name=user${sid}&id=${sid}&vc=470266&stage_id=SabEdo4Bv1h8`
+        );
+        window.open(
+          `http://localhost:3033/zrx7w7nYG3Kp?name=user${sid}&id=${sid}&vc=470266&stage_id=SabEdo4Bv1h8`
+        );
+      }
+    </script>
     <!-- Load all Desired Scripts -->
     <script src="./helpers.js"></script>
     <script src="./media-devices.js"></script>
