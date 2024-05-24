@@ -129,11 +129,12 @@
         openMulti();
       });
       function openMulti() {
-        const chat_d = "x9YC1aBjURil";
-        const stage_id = "ToRyjc5VlpV9";
+        const scheduled_id = 827777
+        const chat_d = "CoJwwJw6ADNr";
+        const stage_id = "221UaYavD74U";
         const sid = parseInt(Math.random() * 10000);
         window.open(
-          `http://localhost:3033/${chat_d}?name=user${sid}&id=${sid}&vc=470266&stage_id=${stage_id}`
+          `http://localhost:3033/${chat_d}?name=user${sid}&id=${sid}&vc=${scheduled_id}&stage_id=${stage_id}`
         );
       }
     </script>

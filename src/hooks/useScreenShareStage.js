@@ -35,14 +35,26 @@ export default function useScreenshareStage() {
     }
   }
 
-  async function publishScreenshare(token) {
+
+  async function publishScreenshare(token, isWhiteboard = false) {
     if (!token) {
       alert("Please enter a token to join a stage");
       return;
     }
     try {
-      const screenshareVideo = (await getScreenshare()).getVideoTracks()[0];
-      updateScreenshare(screenshareVideo);
+      if(isWhiteboard){
+        const whiteboardCanvas = document.getElementById("wb-preview");
+        // Get the stream
+        var canvasStream = whiteboardCanvas.captureStream();
+        // Convert canvas to Blob
+        const whiteboardVideo = canvasStream.getVideoTracks()[0];
+        console.log(whiteboardVideo,"::: wb :::");
+        updateScreenshare(whiteboardVideo);
+      } else {
+        const screenshareVideo = (await getScreenshare()).getVideoTracks()[0];
+        console.log(screenshareVideo,"::: screnshare :::");
+        updateScreenshare(screenshareVideo);
+      }
     } catch {
       // cancelled
       return;

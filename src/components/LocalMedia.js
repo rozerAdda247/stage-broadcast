@@ -8,6 +8,8 @@ import { StageContext } from "../contexts/StageContext.js";
 import { BroadcastContext } from "../contexts/BroadcastContext.js";
 import { useLocalMedia } from "../hooks/useLocalMedia.js";
 
+const handRaise = "HAND_RAISE";
+const handLower = "HAND_LOWER";
 export default function LocalMedia() {
   const {
     init,
@@ -103,23 +105,40 @@ export default function LocalMedia() {
     }
   },[messageConnection]);
 
-  useEffect(()=>{
-    createParticipantToken(["SUBSCRIBE"]).then(res=>{
-      console.log(res)
-      setStageToken(res)
-      setTimeout(()=>{
-        joinStage(res);
-      }, 2000)
-    }).catch(err=>{
+  const handleSendMessage = (type) => {
 
-    });
-  },[])
+    const data = `{
+      "requestId": "${window.sid}",
+      "action": "SEND_MESSAGE",
+      "content":"${type}",
+      "attributes": {
+        "liveLatency":"" ,
+        "canChatPrivately": "true",
+        "pollDetails":"",
+        "pollId":"",
+        "hangOutAttachmentLink":"",
+        "message_type": "${type}",
+        "hangoutFileName": "",
+        "privateModeMessage":"",
+        "random_id":"",
+        "same_user_random_Id":""
+      }
+    }`;
+    window.messageConnection?.send(data);
+  };
 
   return (
     <div className="row">
-      
       <LocalVideo />
       <div className="column">
+        <div
+          className="column"
+          style={{ display: "flex", marginTop: "1.5rem" }}
+        >
+          <Button onClick={()=>handleSendMessage(handRaise)}>Raise Hand</Button>
+          &nbsp;
+          <Button onClick={()=>handleSendMessage(handLower)}>Lower Hand</Button>
+        </div>
         <div className="row" style={{ marginTop: "2rem" }}>
           <div className="column">
             <label htmlFor="token">Token</label>

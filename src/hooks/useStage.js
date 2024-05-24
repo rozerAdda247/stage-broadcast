@@ -1,10 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useRef, useContext, useEffect } from "react";
 import axios from "axios";
-import IVSBroadcastClient from "amazon-ivs-web-broadcast";
 import { LocalMediaContext } from "../contexts/LocalMediaContext.js";
 import { BroadcastContext } from "../contexts/BroadcastContext.js";
 import Strategy from "../util/strategy.js";
-const { Stage, StageConnectionState, StageEvents } = window.IVSBroadcastClient;
 const {
   Stage: Stage$1,
   StageConnectionState: StageConnectionState$1,
@@ -164,14 +163,22 @@ export default function useStage() {
   const [localParticipant, setLocalParticipant] = useState({});
   const { currentVideoDevice, currentAudioDevice } =
     useContext(LocalMediaContext);
-  const { addStream, removeStream, messageConnection } =
+  const { addStream, removeStream } =
     useContext(BroadcastContext);
   const stageRef = useRef(undefined);
   const strategyRef = useRef(
-    new Strategy(currentAudioDevice, currentVideoDevice)
+    new Strategy(
+      currentAudioDevice,
+      currentVideoDevice,
+      SubscribeType$1?.AUDIO_VIDEO
+    )
   );
   useEffect(() => {
-    strategyRef.current.updateMedia(currentAudioDevice, currentVideoDevice);
+    strategyRef.current.updateMedia(
+      currentAudioDevice,
+      currentVideoDevice,
+      SubscribeType$1.AUDIO_VIDEO
+    );
 
     if (stageRef.current && stageJoined) {
       stageRef.current.refreshStrategy();
@@ -180,7 +187,7 @@ export default function useStage() {
   }, [currentAudioDevice, currentVideoDevice, stageJoined]);
 
   const handleParticipantJoin = (participantInfo) => {
-    console.log(participantInfo)
+    console.log(participantInfo, "::::: handleParticipantJoin :::::");
     try {
       if (isLocalParticipant(participantInfo)) {
         setLocalParticipant(participantInfo);
@@ -220,6 +227,7 @@ export default function useStage() {
   };
 
   const handleParticipantLeave = (participantInfo) => {
+    console.log(participantInfo, ":::: handleParticipantLeave ::::");
     if (isLocalParticipant(participantInfo)) {
       setLocalParticipant({});
     } else {
@@ -249,6 +257,7 @@ export default function useStage() {
   };
 
   const handleMediaAdded = (participantInfo, streams) => {
+    console.log(participantInfo, streams, "::::: handleMediaAdded :::::");
     // handlewebRTCStats(streams)
     //   .then((__data__) => {
     //     console.log(__data__);
@@ -270,6 +279,7 @@ export default function useStage() {
   };
 
   const handleMediaRemoved = (participantInfo, streams) => {
+    console.log(participantInfo, streams, "::::: handleMediaRemoved :::::");
     const { id } = participantInfo; // remove media from the broadcast
     removeStream(id, streams);
     if (!isLocalParticipant(participantInfo)) {
@@ -286,10 +296,19 @@ export default function useStage() {
   };
 
   const handleParticipantMuteChange = (participantInfo, stream) => {
+    console.log(
+      participantInfo,
+      stream,
+      "::::: handleParticipantMuteChange :::::"
+    );
     if (!isLocalParticipant(participantInfo)) {
       const { id } = participantInfo;
       let participant = participants.get(id);
-      participant = { ...participant, ...participantInfo };
+      participant = {
+        ...participant,
+        ...participantInfo,
+        // streams: [...participant.streams, ...stream],
+      };
       setParticipants(new Map(participants.set(id, participant)));
     }
   };
@@ -369,18 +388,6 @@ export default function useStage() {
       );
       stage.on(StageEvents$1.STAGE_PARTICIPANT_JOINED, handleParticipantJoin);
       stage.on(StageEvents$1.STAGE_PARTICIPANT_LEFT, handleParticipantLeave);
-      stage.on(
-        StageEvents$1.STAGE_PARTICIPANT_PUBLISH_STATE_CHANGED,
-        (participantInfo, state) => {
-          console.log(participantInfo);
-        }
-      );
-      stage.on(
-        StageEvents$1.STAGE_PARTICIPANT_SUBSCRIBE_STATE_CHANGED,
-        (participantInfo, state) => {
-          console.log(participantInfo);
-        }
-      );
       stage.on(StageEvents$1.STAGE_PARTICIPANT_STREAMS_ADDED, handleMediaAdded);
       stage.on(
         StageEvents$1.STAGE_PARTICIPANT_STREAMS_REMOVED,
@@ -414,6 +421,18 @@ export default function useStage() {
     setStageToken(tkn);
     joinStage(tkn);
   };
+  // useEffect(()=>{
+  //   if(!stageJoined){
+  //     createParticipantToken(["SUBSCRIBE"]).then(res=>{
+  //       setStageToken(res)
+  //       setTimeout(()=>{
+  //         joinStage(res);
+  //       }, 2000)
+  //     }).catch(err=>{
+  
+  //     });
+  //   }
+  // },[stageJoined])
 
   return {
     joinStage,

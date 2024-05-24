@@ -1,6 +1,4 @@
-import { useEffect, useContext, useState } from "react";
-import useStage from "./useStage";
-import { StageContext } from "../contexts/StageContext";
+import { useEffect, useState } from "react";
 const useWebSocket = (token) => {
   const [messageConnection, setMessageConnection] = useState(null);
   const initConnection = async (_token) => {

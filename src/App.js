@@ -4,10 +4,13 @@ import Header from "./components/Header.js";
 import LocalMedia from "./components/LocalMedia.js";
 import LocalMediaProvider from "./contexts/LocalMediaContext.js";
 import BroadcastProvider from "./contexts/BroadcastContext.js";
+import WhiteBoardProvider from "./contexts/WhiteboardContext.js";
 import StageProvider from "./contexts/StageContext.js";
 import StageParticipants from "./components/StageParticipants.js";
 import MediaControls from "./components/MediaControls.js";
 import WebSocketListener from "./components/WebSocketListener.js";
+import Whiteboard from "./components/Whiteboard/Whiteboard.js";
+import WhiteboardControls from "./components/WhiteboardControl.js";
 
 function App() {
   const [token, setToken] = useState(null);
@@ -49,9 +52,9 @@ function App() {
     // Get specific parameter values
     const name = urlParams.get("name");
     const sid = urlParams.get("id");
-    window.sid = sid
+    window.sid = sid;
     const vc = urlParams.get("vc");
-    if(name && sid && vc){
+    if (name && sid && vc) {
       requestToken(name, sid, vc, arn);
     }
   }, []);
@@ -60,15 +63,19 @@ function App() {
     <LocalMediaProvider>
       <BroadcastProvider token={token}>
         <StageProvider>
-          <Header />
-          <div className="content container">
-            <LocalMedia />
-            {/* <WebSocketListener token={token}/> */}
+          <WhiteBoardProvider>
+            <Header />
+            <div className="content container">
+              <LocalMedia />
+              <Whiteboard />
+              {/* <WebSocketListener token={token}/> */}
+              <hr />
+              <StageParticipants />
+            </div>
             <hr />
-            <StageParticipants />
-          </div>
-          <hr />
-          <MediaControls />
+            <MediaControls />
+            <WhiteboardControls/>
+          </WhiteBoardProvider>
         </StageProvider>
       </BroadcastProvider>
     </LocalMediaProvider>
