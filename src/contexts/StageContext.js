@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useRef } from "react";
 import useStage from "../hooks/useStage";
-import useScreenshareStage from "../hooks/useScreenshareStage";
+import useScreenshareStage from "../hooks/useScreenShareStage";
 
 const defaultStageContext = {
   joinStage: undefined,
