@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import rough from "roughjs/bundled/rough.esm";
-import Swatch from "./components/Swatch";
 import { WhiteboardContext } from "../../contexts/WhiteboardContext";
 // import { AddaLogo, HamburgerIcon } from "./theme/svg";
 import { GrNext, GrPrevious, GrClose } from "react-icons/gr";
@@ -260,36 +259,6 @@ const Whiteboard = () => {
           ) : null}
         </div>
       )}
-      {/* {showWhiteBoard && <Swatch
-        wbToolType={wbToolType}
-        setWBToolType={setWBToolType}
-        wbBgColor={wbBgColor}
-        setWbBgColor={setWbBgColor}
-        width={width}
-        setWidth={setWidth}
-        setElements={setElements}
-        setColorWidth={setColorWidth}
-        setPath={setPath}
-        colorWidth={colorWidth}
-        setShapeWidth={setShapeWidth}
-        textToAddRef={textToAddRef}
-        handleSaveAsPDF={async () => await handleSaveAsPDF(facultyData.topic)}
-        pdfFileRef={pdfFileRef}
-        imgFileRef={imgFileRef}
-        rotateImg={rotateImg}
-        elements={elements}
-        toggleTooltip={toggleTooltip}
-        btntooltipRef={btntooltipRef}
-        handleResetWhiteboard={handleResetWhitboard}
-        wbPages={wbPages}
-        deleteWbPage={deleteWbPage}
-        setWbCurrentState={setWbCurrentState}
-        saveWbCurrentState={saveWbCurrentState}
-        saveWbPagesPDF={saveWbPagesPDF}
-        isPageUpdated={isPageUpdated}
-        currentPenIndex={currentPenIndex}
-        setCurrentPenIndex={setCurrentPenIndex}
-      />} */}
       <canvas
         style={{
           border: "1px solid black",

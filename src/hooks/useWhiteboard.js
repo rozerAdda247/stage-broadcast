@@ -483,114 +483,30 @@ const useWhiteboard = () => {
     // const canvas = document.getElementById("wb-preview");
     const context = wbRef?.current?.getContext("2d");
 
-    if (toolType === "selection") {
-      const element = getElementAtPosition(clientX, clientY, elements);
-      if (element) {
-        const offsetX = clientX - element.x1;
-        const offsetY = clientY - element.y1;
-        setSelectedElement({ ...element, offsetX, offsetY });
-        if (element.position === "inside") {
-          setAction("moving");
-        } else {
-          setAction("resize");
-        }
-      }
-    } else if (toolType === "eraser") {
-      setAction("erasing");
-      checkPresent(clientX, clientY, pdfPageNum);
-    } else if (toolType === "scroll") {
-      return;
-    } else if (toolType === "text") {
-      if (
-        textToAddRef.current?.input?.value !== "" &&
-        textToAddRef.current?.input?.value !== null &&
-        textToAddRef.current?.input?.value !== undefined
-      ) {
-        const evt = recalculate(e, "mousedown");
-        const id = elements.length;
-        const newColour = colorWidth.hex;
-        const newWidth = shapeWidth;
-        const _textElement = drawText(
-          context,
-          evt,
-          id,
-          newWidth,
-          newColour,
-          textToAddRef.current?.input?.value
-        );
-        setElements((prevState) => [
-          ...prevState,
-          {
-            ..._textElement,
-            pageNum: pdfPageNum,
-            isPdfFile: selectecPdfFile ? true : false,
-          },
-        ]);
-        setSelectedElement({
-          ..._textElement,
-          pageNum: pdfPageNum,
-          isPdfFile: selectecPdfFile ? true : false,
-        });
-      } else {
-        return;
-      }
+    if (toolType === "pencil" || toolType === "brush") {
+      setAction("sketching");
+      setIsDrawing(true);
 
-      // setSelectedElement(_textElement);
-    } else {
-      const id = elements.length;
-      if (toolType === "pencil" || toolType === "brush") {
-        setAction("sketching");
-        setIsDrawing(true);
+      const newColour = colorWidth.hex;
+      const newLinewidth = width;
+      const transparency = toolType === "brush" ? "0.1" : "1.0";
+      const newEle = {
+        clientX,
+        clientY,
+        newColour,
+        newLinewidth,
+        transparency,
+        pageNum: pdfPageNum,
+        isPdfFile: selectecPdfFile ? true : false,
+      };
+      setPoints((state) => [...state, newEle]);
 
-        const newColour = colorWidth.hex;
-        const newLinewidth = width;
-        const transparency = toolType === "brush" ? "0.1" : "1.0";
-        const newEle = {
-          clientX,
-          clientY,
-          newColour,
-          newLinewidth,
-          transparency,
-          pageNum: pdfPageNum,
-          isPdfFile: selectecPdfFile ? true : false,
-        };
-        setPoints((state) => [...state, newEle]);
-
-        context.strokeStyle = newColour;
-        context.lineWidth = newLinewidth;
-        context.lineCap = 5;
-        context.moveTo(clientX, clientY);
-        context.beginPath();
-      } else {
-        setAction("drawing");
-        const newColour = colorWidth.hex;
-        const newWidth = shapeWidth;
-        const element = createElement(
-          id,
-          clientX,
-          clientY,
-          clientX,
-          clientY,
-          toolType,
-          newWidth,
-          newColour,
-          context
-        );
-        setElements((prevState) => [
-          ...prevState,
-          {
-            ...element,
-            pageNum: pdfPageNum,
-            isPdfFile: selectecPdfFile ? true : false,
-          },
-        ]);
-        setSelectedElement({
-          ...element,
-          pageNum: pageNum,
-          isPdfFile: selectecPdfFile ? true : false,
-        });
-      }
-    }
+      context.strokeStyle = newColour;
+      context.lineWidth = newLinewidth;
+      context.lineCap = 5;
+      context.moveTo(clientX, clientY);
+      context.beginPath();
+    } 
     if (wbLayer) {
       await addLayer(wbLayer, window.client);
     }
@@ -608,15 +524,6 @@ const useWhiteboard = () => {
     // const { clientX, clientY } = e;
     const { clientX, clientY } = adjustedEvent;
 
-    if (toolType === "selection") {
-      const element = getElementAtPosition(clientX, clientY, elements);
-      wbRef.current.style.cursor = element
-        ? cursorForPosition(element.position)
-        : "default";
-    }
-    if (action === "erasing") {
-      checkPresent(clientX, clientY, pdfPageNum);
-    }
     if (action === "sketching") {
       if (!isDrawing) return;
       const colour = points[points.length - 1].newColour;
@@ -636,76 +543,6 @@ const useWhiteboard = () => {
       context.quadraticCurveTo(clientX, clientY, midPoint.x, midPoint.y);
       context.lineTo(clientX, clientY);
       context.stroke();
-    } else if (toolType === "scroll") {
-      return;
-    } else if (toolType === "text") {
-      return;
-    } else if (action === "drawing") {
-      const index = elements.length - 1;
-      const { x1, y1 } = elements[index];
-      elements[index].strokeColor = colorWidth.hex;
-      elements[index].strokeWidth = shapeWidth;
-      updateElement(
-        index,
-        x1,
-        y1,
-        clientX,
-        clientY,
-        toolType,
-        shapeWidth,
-        colorWidth.hex,
-        context,
-        mouseEvent.mousemove
-      );
-    } else if (action === "moving") {
-      const {
-        id,
-        x1,
-        x2,
-        y1,
-        y2,
-        type,
-        offsetX,
-        offsetY,
-        shapeWidth,
-        strokeColor,
-      } = selectedElement;
-      const offsetWidth = x2 - x1;
-      const offsetHeight = y2 - y1;
-      const newX = clientX - offsetX;
-      const newY = clientY - offsetY;
-      updateElement(
-        id,
-        newX,
-        newY,
-        newX + offsetWidth,
-        newY + offsetHeight,
-        type,
-        shapeWidth,
-        strokeColor,
-        context,
-        mouseEvent.mousemove
-      );
-    } else if (action === "resize") {
-      const { id, type, position, ...coordinates } = selectedElement;
-      const { x1, y1, x2, y2 } = resizedCoordinates(
-        clientX,
-        clientY,
-        position,
-        coordinates
-      );
-      updateElement(
-        id,
-        x1,
-        y1,
-        x2,
-        y2,
-        type,
-        shapeWidth,
-        colorWidth.hex,
-        context,
-        mouseEvent.mousemove
-      );
     }
     if (wbLayer) {
       await addLayer(wbLayer, window.client);
@@ -721,43 +558,7 @@ const useWhiteboard = () => {
   ) => {
     window.isDrawing = false;
     const context = wbRef.current.getContext("2d");
-    if (action === "resize") {
-      const index = selectedElement.id;
-      const { id, type, strokeWidth, strokeColor } = elements[index];
-      const { x1, y1, x2, y2 } = adjustElementCoordinates(elements[index]);
-      updateElement(
-        id,
-        x1,
-        y1,
-        x2,
-        y2,
-        type,
-        strokeWidth,
-        strokeColor,
-        context,
-        mouseEvent.mouseup
-      );
-    } else if (toolType === "scroll") {
-      return;
-    } else if (toolType === "text") {
-      return;
-    } else if (action === "drawing") {
-      const index = selectedElement.id;
-      const { id, type, strokeWidth } = elements[index];
-      const { x1, y1, x2, y2 } = adjustElementCoordinates(elements[index]);
-      updateElement(
-        id,
-        x1,
-        y1,
-        x2,
-        y2,
-        type,
-        strokeWidth,
-        colorWidth.hex,
-        context,
-        mouseEvent.mouseup
-      );
-    } else if (action === "sketching") {
+    if (action === "sketching") {
       context.closePath();
       const element = [...points];
       let maxX = element[0].clientX;
@@ -790,76 +591,7 @@ const useWhiteboard = () => {
     }
   };
 
-  function drawText(ctx, evt, id, width, strokeColor, txtvalue) {
-    ctx.closePath();
-    ctx.font = "30px Arial";
-    ctx.fillStyle = colorWidth.hex;
-
-    // Ensure the cursor position is within the visible area
-    const x = Math.max(evt.x, 0);
-    const y = Math.max(evt.y, 0);
-
-    const textRect = ctx.measureText(txtvalue);
-
-    ctx.fillText(txtvalue, x, y);
-    return {
-      id: id,
-      x1: x,
-      y1: y,
-      x2: x + textRect.width,
-      y2: y + 35,
-      type: "text",
-      width: width,
-      strokeColor: strokeColor,
-      value: txtvalue,
-      roughElement: {
-        shape: "text",
-        sets: [
-          {
-            type: "path",
-            ops: [
-              {
-                op: "move",
-                data: [367, 272],
-              },
-              {
-                op: "bcurveTo",
-                data: [
-                  444.19443404640054, 272, 521.3888680928011, 272, 560, 272,
-                ],
-              },
-            ],
-          },
-        ],
-        options: {
-          maxRandomnessOffset: 2,
-          roughness: 0,
-          bowing: 1,
-          stroke: strokeColor,
-          strokeWidth: 1,
-          curveTightness: 0,
-          curveFitting: 0.95,
-          curveStepCount: 9,
-          fillStyle: "hachure",
-          fillWeight: -1,
-          hachureAngle: -41,
-          hachureGap: -1,
-          dashOffset: -1,
-          dashGap: -1,
-          zigzagOffset: -1,
-          seed: 0,
-          disableMultiStroke: false,
-          disableMultiStrokeFill: false,
-          preserveVertices: false,
-          fillShapeRoughnessGain: 0.8,
-          randomizer: {
-            seed: 0,
-          },
-        },
-      },
-      evt: evt,
-    };
-  }
+  
 
   const handleAddText = (val) => {
     addTextFlag.current = val;
@@ -1101,36 +833,6 @@ const useWhiteboard = () => {
     if (path !== undefined && path.length > 0) drawPaths();
   }
 
-  async function redrawShapes() {
-    const canvas = document.getElementById("wb-preview");
-    const context = canvas?.getContext("2d");
-    context.lineWidth = shapeWidth;
-    const elementsOnCurrentPage = elements.filter(
-      (element) => element.pageNum === window.pageNum
-    );
-    if (elementsOnCurrentPage?.length) {
-      context.fillStyle = wbBgColor;
-      context.fillRect(0, 0, wbRef.current.width, wbRef.current.height);
-    }
-    if (path !== undefined && path.length > 0) await redrawPaths();
-    for (const { roughElement, ...rest } of elementsOnCurrentPage) {
-      if (rest.type === "text") {
-        drawText(
-          context,
-          rest.evt,
-          rest.id,
-          rest.width,
-          rest.strokeColor,
-          rest.value
-        );
-      } else {
-        context.globalAlpha = "1";
-        context.strokeStyle = roughElement?.options?.stroke;
-        roughCanvas.draw(roughElement);
-      }
-    }
-  }
-
   async function whiteboardInitialize() {
     const canvas = document.getElementById("wb-preview");
     if (canvas && wbRef.current) {
@@ -1160,12 +862,6 @@ const useWhiteboard = () => {
       }
 
       await redrawPaths();
-      if (!pdfFileRef.current) {
-        await redrawShapes();
-      }
-      if (pdfFileRef.current) {
-        await handlePersistAsPDF(window.pageNum);
-      }
 
       return () => {
         context.clearRect(0, 0, canvas.width, canvas.height);
@@ -1189,111 +885,107 @@ const useWhiteboard = () => {
     if (showWhiteBoard) redrawPaths();
   }, [path, width, showWhiteBoard]);
 
-  useEffect(() => {
-    if (showWhiteBoard) redrawShapes();
-  }, [elements, showWhiteBoard]);
+  // const updateElement = (
+  //   index,
+  //   x1,
+  //   y1,
+  //   x2,
+  //   y2,
+  //   wbToolType,
+  //   strokeWidth,
+  //   strokeColor,
+  //   ctx,
+  //   _mouseEvent
+  // ) => {
+  //   let updatedElement = createElement(
+  //     index,
+  //     x1,
+  //     y1,
+  //     x2,
+  //     y2,
+  //     wbToolType,
+  //     strokeWidth,
+  //     strokeColor,
+  //     ctx
+  //   );
+  //   const elementsCopy = [...elements];
+  //   elementsCopy[index] = { ...elementsCopy[index], ...updatedElement };
+  //   setElements(elementsCopy);
+  // };
 
-  const updateElement = (
-    index,
-    x1,
-    y1,
-    x2,
-    y2,
-    wbToolType,
-    strokeWidth,
-    strokeColor,
-    ctx,
-    _mouseEvent
-  ) => {
-    let updatedElement = createElement(
-      index,
-      x1,
-      y1,
-      x2,
-      y2,
-      wbToolType,
-      strokeWidth,
-      strokeColor,
-      ctx
-    );
-    const elementsCopy = [...elements];
-    elementsCopy[index] = { ...elementsCopy[index], ...updatedElement };
-    setElements(elementsCopy);
-  };
-
-  const checkPresent = (clientX, clientY, _pageNum) => {
-    if (path === undefined) return;
-    var newPath = [...path];
-    path.forEach((stroke, index) => {
-      if (
-        ((clientX >= stroke.x1 && clientX <= stroke.x2) ||
-          (clientX >= stroke.x2 && clientX <= stroke.x1)) &&
-        ((clientY >= stroke.y1 && clientY <= stroke.y2) ||
-          (clientY >= stroke.y2 && clientY <= stroke.y1)) &&
-        stroke.pageNum === pageNum
-      ) {
-        newPath.splice(index, 1);
-        setPopped(true);
-        setPath(newPath);
-        return;
-      }
-    });
-    const newElements = [...elements];
-    newElements.forEach((ele, index) => {
-      const range = 15; // Adjust the range value as needed
-      if (ele.type === "text") {
-        // const _newelements = elements.filter((ele, index) => {
-        //   if (
-        //     ele.type === "text" &&
-        //     clientY >= ele.y1 - range &&
-        //     clientY <= ele.y2 + range &&
-        //     clientX >= ele.x1 - range &&
-        //     clientX <= ele.x2 + range &&
-        //     ele.pageNum === window.pageNum
-        //   ) {
-        //     setPopped(true);
-        //     return false;
-        //   }
-        //   return true;
-        // });
-        // setElements(_newelements);
-        if (
-          clientY >= ele.y1 - range &&
-          clientY <= ele.y2 + range &&
-          clientX >= ele.x1 - range &&
-          clientX <= ele.x2 + range &&
-          ele.pageNum === pageNum
-        ) {
-          newElements.splice(index, 1);
-          setPopped(true);
-          setElements(newElements);
-        }
-      } else {
-        if (ele.type === "circle") {
-          const a = { x: ele.x1, y: ele.y1 };
-          const b = { x: ele.x2, y: ele.y2 };
-          const c = { x: clientX, y: clientY };
-          const inside =
-            Math.abs(distance(a, c)) < distance(a, b) ? true : false;
-          if (inside) {
-            newElements.splice(index, 1);
-            setPopped(true);
-            setElements(newElements);
-          }
-        } else if (
-          ((clientX >= ele.x1 && clientX <= ele.x2) ||
-            (clientX >= ele.x2 && clientX <= ele.x1)) &&
-          ((clientY >= ele.y1 && clientY <= ele.y2) ||
-            (clientY >= ele.y2 && clientY <= ele.y1)) &&
-          ele.pageNum === pageNum
-        ) {
-          newElements.splice(index, 1);
-          setPopped(true);
-          setElements(newElements);
-        }
-      }
-    });
-  };
+  // const checkPresent = (clientX, clientY, _pageNum) => {
+  //   if (path === undefined) return;
+  //   var newPath = [...path];
+  //   path.forEach((stroke, index) => {
+  //     if (
+  //       ((clientX >= stroke.x1 && clientX <= stroke.x2) ||
+  //         (clientX >= stroke.x2 && clientX <= stroke.x1)) &&
+  //       ((clientY >= stroke.y1 && clientY <= stroke.y2) ||
+  //         (clientY >= stroke.y2 && clientY <= stroke.y1)) &&
+  //       stroke.pageNum === pageNum
+  //     ) {
+  //       newPath.splice(index, 1);
+  //       setPopped(true);
+  //       setPath(newPath);
+  //       return;
+  //     }
+  //   });
+  //   const newElements = [...elements];
+  //   newElements.forEach((ele, index) => {
+  //     const range = 15; // Adjust the range value as needed
+  //     if (ele.type === "text") {
+  //       // const _newelements = elements.filter((ele, index) => {
+  //       //   if (
+  //       //     ele.type === "text" &&
+  //       //     clientY >= ele.y1 - range &&
+  //       //     clientY <= ele.y2 + range &&
+  //       //     clientX >= ele.x1 - range &&
+  //       //     clientX <= ele.x2 + range &&
+  //       //     ele.pageNum === window.pageNum
+  //       //   ) {
+  //       //     setPopped(true);
+  //       //     return false;
+  //       //   }
+  //       //   return true;
+  //       // });
+  //       // setElements(_newelements);
+  //       if (
+  //         clientY >= ele.y1 - range &&
+  //         clientY <= ele.y2 + range &&
+  //         clientX >= ele.x1 - range &&
+  //         clientX <= ele.x2 + range &&
+  //         ele.pageNum === pageNum
+  //       ) {
+  //         newElements.splice(index, 1);
+  //         setPopped(true);
+  //         setElements(newElements);
+  //       }
+  //     } else {
+  //       if (ele.type === "circle") {
+  //         const a = { x: ele.x1, y: ele.y1 };
+  //         const b = { x: ele.x2, y: ele.y2 };
+  //         const c = { x: clientX, y: clientY };
+  //         const inside =
+  //           Math.abs(distance(a, c)) < distance(a, b) ? true : false;
+  //         if (inside) {
+  //           newElements.splice(index, 1);
+  //           setPopped(true);
+  //           setElements(newElements);
+  //         }
+  //       } else if (
+  //         ((clientX >= ele.x1 && clientX <= ele.x2) ||
+  //           (clientX >= ele.x2 && clientX <= ele.x1)) &&
+  //         ((clientY >= ele.y1 && clientY <= ele.y2) ||
+  //           (clientY >= ele.y2 && clientY <= ele.y1)) &&
+  //         ele.pageNum === pageNum
+  //       ) {
+  //         newElements.splice(index, 1);
+  //         setPopped(true);
+  //         setElements(newElements);
+  //       }
+  //     }
+  //   });
+  // };
 
   const handlePersistAsPDF = async (pageNum) => {
     // Draw the canvas content onto the PDF page
